@@ -1,14 +1,19 @@
 # mengimport package pyTelegramBotAPI
-import telebot, json
+import telebot, json, keyboard
 import subprocess
 
 # inisialisasi Token Bot
 bot = telebot.TeleBot('6685750122:AAE3rPQEupZjWTE6o3QaeF1YEOUYMfcoMLo')
 default_chat_id = 5981475588
 
+exit_python = 0
+
 def lokasi():
+	print('starting termux-location...')
 	result = subprocess.run(['./termux-location'], stdout=subprocess.PIPE).stdout
+	print('get JSON')
 	result_json = json.loads(result)
+	print('get latitude and longitude information')
 	latitude = result_json['latitude']
 	longitude = result_json['longitude']
 	print(f'latitude: {latitude} longitude: {longitude}')
@@ -63,6 +68,13 @@ def info(message):
 	bot.reply_to(message, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 while True:
+	#if keyboard.is_pressed('q'):
+	if exit_python == 1:
+		exit(0)
+	else:
+		print('Exit...')
+		exit_python = 1
+	#	exit(0)
 	try:
 		bot.polling()
 	except:
