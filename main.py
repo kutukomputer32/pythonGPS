@@ -34,12 +34,13 @@ def lokasi():
 @bot.message_handler(commands=['start'])
 def welcome(message):
 	# membalas pesan
-	if verify_user(message.chat.id):
-		print('failed: chat id not valid')
-		return
-
-	#bot.reply_to(message, message.chat.id)
 	bot.reply_to(message, 'Halo, apa kabar?')
+
+# Menghandle Pesan /start
+@bot.message_handler(commands=['id'])
+def get_chat_id(message):
+	# membalas pesan
+	bot.reply_to(message, f'Your chat id: {message.chat.id}')
 
 # Menghandle Pesan /lokasi
 @bot.message_handler(commands=['location', 'lokasi'])
