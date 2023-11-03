@@ -1,5 +1,5 @@
 # mengimport package pyTelegramBotAPI
-import telebot, json, keyboard
+import telebot, json
 import subprocess, os
 
 # inisialisasi Token Bot
@@ -21,7 +21,7 @@ def extract_arg(arg):
 
 def lokasi():
 	print('starting termux-location...')
-	result = subprocess.run(['./termux-location'], stdout=subprocess.PIPE).stdout
+	result = subprocess.run(['termux-location'], stdout=subprocess.PIPE).stdout
 	print('get JSON')
 	result_json = json.loads(result)
 	print('get latitude and longitude information')
@@ -74,14 +74,32 @@ def record(message):
 	print('debug arg: ' + arg)
 
 	if arg == 'start':
+		bot.reply_to(message, 'Recording audio...')
 		os.system(f'termux-microphone-record -f record.mp3')
 	elif arg == 'stop':
+		bot.reply_to(message, 'Recording stop...')
 		os.system(f'termux-microphone-record -q')
 	elif arg == 'send':
-		bot.reply_to(message, 'send audio...')
+		bot.reply_to(message, 'Send audio...')
 		bot.send_audio(chat_id=message.chat.id, audio=open('record.mp3', 'rb'))
 	else:
-		bot.reply_to(message, 'Command not found.')
+		return
+
+# Menghandle Pesan /rickroll
+@bot.message_handler(commands=['getfile'])
+def get_file(message):
+	# membalas pesan
+	if verify_user(message.chat.id):
+		print('failed: chat id not valid')
+		return
+
+	print('send file...')
+
+	arg = extract_arg(message.text)
+
+	print('debug arg: ' + arg)
+
+	bot.send_document(chat_id=message.chat.id, document=open(arg, 'rb'))
 
 # Menghandle Pesan /battery
 @bot.message_handler(commands=['battery', 'baterai'])
@@ -92,10 +110,10 @@ def battery(message):
 		return
 
 	bot.reply_to(message, 'Mendapatkan informasi baterai...')
-	result = subprocess.run(['./termux-battery-status'], stdout=subprocess.PIPE).stdout
+	result = subprocess.run(['termux-battery-status'], stdout=subprocess.PIPE).stdout
 	print('get JSON')
 	result_json = json.loads(result)
-	bot.reply_to(message, f'Informasi Baterai\npersentase: {result_json["percentage"]}\nstatus: {result_json["status"]}\nsuhu: {result_json["temperature"]}')
+	bot.reply_to(message, f'Informasi Baterai\npersentase: {result_json["percentage"]}%\nstatus: {result_json["status"]}\nsuhu: {result_json["temperature"]}')
 
 # Menghandle Pesan /torch
 @bot.message_handler(commands=['torch', 'senter'])
@@ -175,8 +193,6 @@ def userdel(message):
 
 	arg = extract_arg(message.text)
 
-	#del users[int(arg)]
-
 	users.remove(int(arg))
 
 	print(users)
@@ -195,7 +211,7 @@ def send_msg(message):
 
 	bot.reply_to(message, f'Mengirim pesan "{arg}"')
 	bot.reply_to(message, 'Menunggu jawaban...')
-	result = subprocess.run([f'./termux-location {arg}'], stdout=subprocess.PIPE).stdout
+	result = subprocess.run([f'termux-dialog -t "{arg}"'], stdout=subprocess.PIPE).stdout
 	print('get JSON')
 	result_json = json.loads(result)
 	bot.reply_to(message, result_json['text'])
